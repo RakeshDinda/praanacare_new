@@ -25,13 +25,7 @@ type UserRole = "patient" | "doctor" | "employer" | null
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("login")
   const [userRole, setUserRole] = useState<UserRole>(null)
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("theme")
-      return saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)
-    }
-    return false
-  })
+  const [isDark, setIsDark] = useState<boolean | null>(null)
 
   const { user, isAuthenticated, logout } = useAuth()
 
@@ -91,6 +85,13 @@ export default function App() {
   }
 
   useEffect(() => {
+    // Safe localStorage access for theme
+    const saved = typeof window !== "undefined" ? localStorage.getItem("theme") : null
+    setIsDark(saved === "dark" || (!saved && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches))
+  }, [])
+
+  useEffect(() => {
+    if (isDark === null) return
     if (isDark) {
       document.documentElement.classList.add("dark")
     } else {
@@ -121,9 +122,8 @@ export default function App() {
     <div className="size-full relative">
       {/* Theme Toggle - Fixed position */}
       <div className="fixed top-4 right-4 z-50">
-        <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+        {isDark !== null && <ThemeToggle isDark={isDark} onToggle={toggleTheme} />}
       </div>
-
       {renderScreen()}
     </div>
   )
