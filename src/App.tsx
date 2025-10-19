@@ -113,3 +113,6 @@ export default function App() {
     switch (currentScreen) {
       case "login":
         return <LoginScreen onRoleSelect={handleRoleSelect} />;
+    }
+  }
+}
