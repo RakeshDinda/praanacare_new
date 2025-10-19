@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { OnboardingScreen } from "./components/OnboardingScreen"
-import { PatientDashboard } from "./components/PatientDashboard"
-import { AIChat } from "./components/AIChat"
-import { DoctorDashboard } from "./components/DoctorDashboard"
-import { EmployerDashboard } from "./components/EmployerDashboard"
-import { ThemeToggle } from "./components/ThemeToggle"
-import { LoginScreen } from "./components/LoginScreen"
-import { useAuth } from "./hooks/useAuth"
+import { useState, useEffect } from "react";
+import { OnboardingScreen } from "./components/OnboardingScreen";
+import { PatientDashboard } from "./components/PatientDashboard";
+import { AIChat } from "./components/AIChat";
+import { DoctorDashboard } from "./components/DoctorDashboard";
+import { EmployerDashboard } from "./components/EmployerDashboard";
+import { ThemeToggle } from "./components/ThemeToggle";
+import { LoginScreen } from "./components/LoginScreen";
+import { useAuth } from "./hooks/useAuth";
 
 type Screen =
   | "login"
@@ -19,112 +19,97 @@ type Screen =
   | "employer"
   | "vitals"
   | "consultations"
-  | "emergency"
-type UserRole = "patient" | "doctor" | "employer" | null
+  | "emergency";
+type UserRole = "patient" | "doctor" | "employer" | null;
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>("login")
-  const [userRole, setUserRole] = useState<UserRole>(null)
-  const [isDark, setIsDark] = useState<boolean | null>(null)
+  const [currentScreen, setCurrentScreen] = useState<Screen>("login");
+  const [userRole, setUserRole] = useState<UserRole>(null);
+  const [isDark, setIsDark] = useState<boolean | null>(null);
 
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated, logout } = useAuth();
 
+  // ✅ Handle authentication + role routing
   useEffect(() => {
     if (isAuthenticated && user) {
-      // Immediately set role and screen based on user data
-      const role = user.role as UserRole
-      setUserRole(role)
+      const role = user.role as UserRole;
+      setUserRole(role);
       switch (role) {
         case "patient":
-          setCurrentScreen("patient")
-          break
+          setCurrentScreen("patient");
+          break;
         case "doctor":
-          setCurrentScreen("doctor")
-          break
+          setCurrentScreen("doctor");
+          break;
         case "employer":
-          setCurrentScreen("employer")
-          break
+          setCurrentScreen("employer");
+          break;
         default:
-          setCurrentScreen("login")
+          setCurrentScreen("login");
       }
     } else {
-      setUserRole(null)
-      setCurrentScreen("login")
+      setUserRole(null);
+      setCurrentScreen("login");
     }
-  }, [isAuthenticated, user])
+  }, [isAuthenticated, user]);
 
+  // ✅ Handle role selection
   const handleRoleSelect = (role: UserRole) => {
-    setUserRole(role)
+    setUserRole(role);
     switch (role) {
       case "patient":
-        setCurrentScreen("patient")
-        break
+        setCurrentScreen("patient");
+        break;
       case "doctor":
-        setCurrentScreen("doctor")
-        break
+        setCurrentScreen("doctor");
+        break;
       case "employer":
-        setCurrentScreen("employer")
-        break
+        setCurrentScreen("employer");
+        break;
     }
-  }
+  };
 
   const handleNavigate = (screen: string) => {
-    setCurrentScreen(screen as Screen)
-  }
+    setCurrentScreen(screen as Screen);
+  };
 
   const handleLogout = () => {
-    logout()
-    setUserRole(null)
-    setCurrentScreen("login")
-  }
+    logout();
+    setUserRole(null);
+    setCurrentScreen("login");
+  };
 
+  // ✅ SAFE THEME TOGGLE (no localStorage at declaration time)
   const toggleTheme = () => {
-    const newIsDark = !isDark
-    setIsDark(newIsDark)
-    localStorage.setItem("theme", newIsDark ? "dark" : "light")
-  }
+    setIsDark((prev) => {
+      const newIsDark = !prev;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("theme", newIsDark ? "dark" : "light");
+      }
+      return newIsDark;
+    });
+  };
 
+  // ✅ Load saved theme safely
   useEffect(() => {
-    // Safe localStorage access for theme
-    const saved = typeof window !== "undefined" ? localStorage.getItem("theme") : null
-    setIsDark(saved === "dark" || (!saved && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches))
-  }, [])
+    if (typeof window === "undefined") return;
+    const saved = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setIsDark(saved === "dark" || (!saved && prefersDark));
+  }, []);
 
+  // ✅ Apply dark mode class
   useEffect(() => {
-    if (isDark === null) return
+    if (isDark === null) return;
     if (isDark) {
-      document.documentElement.classList.add("dark")
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove("dark")
+      document.documentElement.classList.remove("dark");
     }
-  }, [isDark])
+  }, [isDark]);
 
+  // ✅ Render screen logic
   const renderScreen = () => {
     switch (currentScreen) {
       case "login":
-        return <LoginScreen onRoleSelect={handleRoleSelect} />
-      case "onboarding":
-        return <OnboardingScreen onRoleSelect={handleRoleSelect} />
-      case "patient":
-        return <PatientDashboard onNavigate={handleNavigate} onLogout={handleLogout} />
-      case "chat":
-        return <AIChat onNavigate={handleNavigate} />
-      case "doctor":
-        return <DoctorDashboard onNavigate={handleNavigate} onLogout={handleLogout} />
-      case "employer":
-        return <EmployerDashboard onNavigate={handleNavigate} onLogout={handleLogout} />
-      default:
-        return <LoginScreen onRoleSelect={handleRoleSelect} />
-    }
-  }
-
-  return (
-    <div className="size-full relative">
-      {/* Theme Toggle - Fixed position */}
-      <div className="fixed top-4 right-4 z-50">
-        {isDark !== null && <ThemeToggle isDark={isDark} onToggle={toggleTheme} />}
-      </div>
-      {renderScreen()}
-    </div>
-  )
-}
+        return <LoginScreen onRoleSelect={handleRoleSelect} />;
