@@ -1,23 +1,45 @@
-# Praana Care Backend Setup
+# Praana Care Backend & Frontend Setup
 
-## Installation
+## Backend Installation
 
 1. Navigate to the server directory:
 \`\`\`bash
 cd server
 \`\`\`
 
-2. Install dependencies:
+2. Install backend dependencies:
 \`\`\`bash
 npm install
 \`\`\`
 
-3. Start the development server:
+3. Start the backend development server:
 \`\`\`bash
 npm run dev
 \`\`\`
 
 The backend will run on `http://localhost:3001`
+
+## Frontend Installation
+
+1. Open a new terminal and navigate to the main project folder:
+\`\`\`bash
+cd ..
+\`\`\`
+(or ensure you are in `build-praana-care-mvp-1 5`)
+
+2. Install frontend dependencies:
+\`\`\`bash
+npm install
+\`\`\`
+
+3. Start the frontend development server:
+\`\`\`bash
+npm run dev
+\`\`\`
+
+The frontend will run on its configured port (e.g., `http://localhost:3000`).
+
+**Make sure the backend server is running before starting the frontend.**
 
 ## API Endpoints
 
